@@ -1,0 +1,47 @@
+name: Daily Commit
+
+on:
+  schedule:
+    - cron: "30 18 * * *"
+    - cron: "30 21 * * *"
+    - cron: "30 0 * * *"
+    - cron: "30 3 * * *"
+    - cron: "30 6 * * *"
+    - cron: "30 9 * * *"
+    - cron: "30 12 * * *"
+    - cron: "30 15 * * *"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure git identity
+        run: |
+          git config user.name "Yash Raj"
+          git config user.email "212myashraj@gmail.com"
+
+      - name: Update activity file
+        run: |
+          mkdir -p .github
+          echo "$(date -u +'%Y-%m-%dT%H:%M:%SZ') automated commit" >> .github/daily-activity.log
+
+      - name: Commit and push
+        run: |
+          git add -f .github/daily-activity.log
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore: automated daily commit"
+          git push
